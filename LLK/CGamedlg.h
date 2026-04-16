@@ -12,7 +12,6 @@ public:
 	CGamedlg(CWnd* pParent = nullptr);   // 标准构造函数
 	virtual ~CGamedlg();
 
-// 对话框数据
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_GAME_DIALOG };
 #endif
@@ -26,19 +25,26 @@ protected:
 	CDC m_dcMem;
 	CDC m_dcElement;
 	CDC m_dcMask;
-	CDC m_dcBG;  
-	CRect m_rtGameRect;  // 添加在类的 private 部分，用于存储游戏区域矩形
+	CDC m_dcBG;
+	CRect m_rtGameRect;  // 游戏区域矩形
 	CGameControl m_GameControl;
+
+	// 保存位图对象为成员，保证生命周期
+	CBitmap m_bmpBG;
+	CBitmap m_bmpMem;
+	CBitmap m_bmpElement;
+	CBitmap m_bmpMask;
 
 	void UpdateMap();
 	void DrawTipFrame(int nRow, int nCol);
-	void DrawTipLine(Vertex Vertexs[2]);
+	// 修改：接受任意点数组及点数
+	void DrawTipLine(Vertex* vertexs, int nCount);
 	CPoint m_ptGameTop;
 	CSize m_sizeElem;
 	bool m_bFirstPoint;
-	
+
 public:
-	
+
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
 	afx_msg void OnBnClickedButton3();

@@ -1,14 +1,19 @@
 #include "pch.h"
 #include "CGameControl.h"
-#include "CGameLogic.h"
-CGameControl::CGameControl() {
 
+CGameControl::CGameControl() {
+	// 初始化为 BLANK
+	for (int r = 0; r < MAX_ROW; ++r)
+		for (int c = 0; c < MAX_COL; ++c)
+			m_anMap[r][c] = BLANK;
 }
+
 CGameControl::~CGameControl() {
 }
-void CGameControl::StartGame() {
-    gameLogic.InitMap(m_anMap);
 
+void CGameControl::StartGame() {
+	gameLogic.InitMap(m_anMap);
+	m_graph.InitGraph(m_anMap);  // 初始化图
 }
 
 int CGameControl::GetElement(int nRow, int nCol) {
@@ -16,26 +21,31 @@ int CGameControl::GetElement(int nRow, int nCol) {
 }
 
 void CGameControl::SetFirstPoint(int nRow, int nCol) {
-    m_ptSelFirst.row = nRow;
-    m_ptSelFirst.col = nCol;
+	m_ptSelFirst.row = nRow;
+	m_ptSelFirst.col = nCol;
 }
 
 void CGameControl::SetSecPoint(int nRow, int nCol) {
-        m_ptSelSecond.row = nRow;
-        m_ptSelSecond.col = nCol;
+	m_ptSelSecond.row = nRow;
+	m_ptSelSecond.col = nCol;
 }
 
 bool CGameControl::Link() {
-    return gameLogic.IsLink(m_anMap, m_ptSelFirst, m_ptSelSecond);
+	// 改用图结构的 IsLink
+	return gameLogic.IsLink(m_graph, m_ptSelFirst, m_ptSelSecond);
 }
 
-Vertex* CGameControl::GetPoints() {
-    Vertex * pVertex = new Vertex[2];
-    pVertex[0] = m_ptSelFirst;
-    pVertex[1] = m_ptSelSecond;
-    return pVertex;
+Vertex* CGameControl::GetPoints(int& nCount) {
+	int cnt = gameLogic.GetPathCount();
+	const Vertex* p = gameLogic.GetPath();
+	nCount = cnt;
+	if (cnt <= 0) return nullptr;
+	Vertex* arr = new Vertex[cnt];
+	for (int i = 0; i < cnt; ++i) arr[i] = p[i];
+	return arr;
 }
 
 void CGameControl::Clear() {
-    gameLogic.Clear(m_anMap,m_ptSelFirst, m_ptSelSecond);
+	gameLogic.Clear(m_anMap, m_ptSelFirst, m_ptSelSecond);
+	m_graph.InitGraph(m_anMap);  // 消除后重新初始化图
 }

@@ -28,6 +28,8 @@ protected:
 	CDC m_dcMask;
 	int m_anMap[4][4];
 	void UpdateMap();
+	CPoint m_ptGameTop;
+	CSize m_sizeElem;
 public:
 	
 	virtual BOOL OnInitDialog();
@@ -39,4 +41,5 @@ public:
 	afx_msg void OnBnClickedBtnPause();
 	afx_msg void OnBnClickedBtnIdea();
 	afx_msg void OnBnClickedBtnRestart();
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 };

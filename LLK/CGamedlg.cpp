@@ -14,7 +14,10 @@ IMPLEMENT_DYNAMIC(CGamedlg, CDialogEx)
 CGamedlg::CGamedlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_GAME_DIALOG, pParent)
 {
-
+	m_ptGameTop.x = 50;
+	m_ptGameTop.y = 50;
+	m_sizeElem.cx = 40;
+	m_sizeElem.cy = 40;
 }
 
 CGamedlg::~CGamedlg()
@@ -33,6 +36,7 @@ BEGIN_MESSAGE_MAP(CGamedlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_PAUSE, &CGamedlg::OnBnClickedBtnPause)
 	ON_BN_CLICKED(IDC_BTN_IDEA, &CGamedlg::OnBnClickedBtnIdea)
 	ON_BN_CLICKED(IDC_BTN_RESTART, &CGamedlg::OnBnClickedBtnRestart)
+	ON_WM_LBUTTONUP()
 END_MESSAGE_MAP()
 
 
@@ -143,5 +147,18 @@ void CGamedlg::UpdateMap() {
 			m_dcMem.BitBlt(nLeft + j * nElemW, nTop + i * nElemH, nElemW, nElemH, &m_dcMask, 0, m_anMap[i][j] * nElemH, SRCPAINT);
 			m_dcMem.BitBlt(nLeft + j * nElemW, nTop + i * nElemH, nElemW, nElemH, &m_dcElement, 0, m_anMap[i][j] * nElemH, SRCAND);
 		}
+	}
+}
+
+void CGamedlg::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	if (point.x < m_ptGameTop.x || point.y < m_ptGameTop.y) {
+		return CDialogEx::OnLButtonUp(nFlags, point);
+	}
+	int nRow = (point.y - m_ptGameTop.y) / m_sizeElem.cy;
+	int nCol = (point.x - m_ptGameTop.x) / m_sizeElem.cx;
+	if (nRow > 3 || nCol > 3) {
+		return CDialogEx::OnLButtonUp(nFlags, point);
 	}
 }

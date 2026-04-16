@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "afxdialogex.h"
-
-
+#include "global.h"
+#include "CGameControl.h"
 // CGamedlg 对话框
 
 class CGamedlg : public CDialogEx
@@ -26,10 +26,17 @@ protected:
 	CDC m_dcMem;
 	CDC m_dcElement;
 	CDC m_dcMask;
-	int m_anMap[4][4];
+	CDC m_dcBG;  
+	CRect m_rtGameRect;  // 添加在类的 private 部分，用于存储游戏区域矩形
+	CGameControl m_GameControl;
+
 	void UpdateMap();
+	void DrawTipFrame(int nRow, int nCol);
+	void DrawTipLine(Vertex Vertexs[2]);
 	CPoint m_ptGameTop;
 	CSize m_sizeElem;
+	bool m_bFirstPoint;
+	
 public:
 	
 	virtual BOOL OnInitDialog();

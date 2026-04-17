@@ -6,6 +6,10 @@ typedef struct tagVertex
 	int info;
 }Vertex;
 
+// global.h
+#define MAX_ROW 10
+#define MAX_COL 10
+#define MAX_VERTEX_NUM (MAX_ROW * MAX_COL)
 #define BLANK -1
-#define MAX_ROW 4
-#define MAX_COL 4
+
+#define IMAGE_TYPE_NUM 10  

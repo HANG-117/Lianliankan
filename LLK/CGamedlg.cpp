@@ -8,7 +8,7 @@
 
 IMPLEMENT_DYNAMIC(CGamedlg, CDialogEx)
 
-CGamedlg::CGamedlg(CWnd* pParent /*=nullptr*/)
+CGamedlg::CGamedlg(CWnd* pParent )
 	: CDialogEx(IDD_GAME_DIALOG, pParent)
 {
 	m_ptGameTop.x = 50;
@@ -17,11 +17,17 @@ CGamedlg::CGamedlg(CWnd* pParent /*=nullptr*/)
 	m_sizeElem.cy = 40;
 
 	m_bFirstPoint = true;
+	m_bPlaying = false;
+	m_bPaused = false;
+	m_bTimerRunning = false;
+	m_nTimerID = 1;
+	m_nTimeLeft = 300; // 默认 300 秒，可在开始游戏时修改
 
 	m_rtGameRect = CRect(m_ptGameTop.x, m_ptGameTop.y,
-		m_ptGameTop.x + 4 * m_sizeElem.cx,
-		m_ptGameTop.y + 4 * m_sizeElem.cy);
+		m_ptGameTop.x + MAX_COL * m_sizeElem.cx,
+		m_ptGameTop.y + MAX_ROW * m_sizeElem.cy);
 }
+
 
 CGamedlg::~CGamedlg()
 {
@@ -38,7 +44,9 @@ BEGIN_MESSAGE_MAP(CGamedlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_PAUSE, &CGamedlg::OnBnClickedBtnPause)
 	ON_BN_CLICKED(IDC_BTN_IDEA, &CGamedlg::OnBnClickedBtnIdea)
 	ON_BN_CLICKED(IDC_BTN_RESTART, &CGamedlg::OnBnClickedBtnRestart)
+	ON_WM_TIMER()
 	ON_WM_LBUTTONUP()
+	ON_STN_CLICKED(IDC_STATIC_TIME, &CGamedlg::OnStnClickedStaticTime)
 END_MESSAGE_MAP()
 
 
@@ -127,24 +135,74 @@ void CGamedlg::OnBnClickedButton1()
 
 void CGamedlg::OnClickedBtnStart()
 {
+	
 	m_GameControl.StartGame();
 	UpdateMap();
+
+	m_bPlaying = true;
+	m_bPaused = false;
+	m_nTimeLeft = 600; // 开始时重置时间（按需调整）
+	// 如果定时器尚未启动，启动它
+	if (!m_bTimerRunning) {
+		SetTimer(m_nTimerID, 1000, NULL); // 1 秒间隔
+		m_bTimerRunning = true;
+	}
+
+	GetDlgItem(IDC_BTN_START)->EnableWindow(FALSE);
 	InvalidateRect(m_rtGameRect, FALSE);
+	
 }
 
 void CGamedlg::OnBnClickedBtnPause()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	if (!m_bPlaying) return;
+
+	m_bPaused = !m_bPaused;
+	if (m_bPaused) {
+		// 暂停：停止定时器（释放系统计时资源）
+		if (m_bTimerRunning) {
+			KillTimer(m_nTimerID);
+			m_bTimerRunning = false;
+		}
+		// 可更新按钮文本为“继续”
+		GetDlgItem(IDC_BTN_PAUSE)->SetWindowText(_T("继续"));
+	}
+	else {
+		// 恢复：如果定时器未运行则重新启动
+		if (!m_bTimerRunning) {
+			SetTimer(m_nTimerID, 1000, NULL);
+			m_bTimerRunning = true;
+		}
+		GetDlgItem(IDC_BTN_PAUSE)->SetWindowText(_T("暂停"));
+	}
 }
 
 void CGamedlg::OnBnClickedBtnIdea()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	Vertex v1, v2;
+	if (m_GameControl.Help(v1, v2)) {
+		// 先重绘地图
+		UpdateMap();
+		// 绘制提示框
+		DrawTipFramePair(v1, v2);
+		InvalidateRect(m_rtGameRect, FALSE);
+		UpdateWindow();
+		// 1秒后消失
+		Sleep(1000);
+		UpdateMap();
+		InvalidateRect(m_rtGameRect, FALSE);
+		UpdateWindow();
+	}
+	else {
+		MessageBox(_T("没有可消除的图片对！"), _T("提示"), MB_OK | MB_ICONINFORMATION);
+	}
 }
 
 void CGamedlg::OnBnClickedBtnRestart()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	m_GameControl.Reset();
+	UpdateMap();
+	InvalidateRect(m_rtGameRect, FALSE);
 }
 
 void CGamedlg::UpdateMap() {
@@ -153,7 +211,6 @@ void CGamedlg::UpdateMap() {
 	int nElemW = m_sizeElem.cx;
 	int nElemH = m_sizeElem.cy;
 
-	// 只拷贝游戏区域背景（覆盖之前绘制的方框和线条）
 	m_dcMem.BitBlt(
 		m_rtGameRect.left, m_rtGameRect.top,
 		m_rtGameRect.Width(), m_rtGameRect.Height(),
@@ -161,13 +218,10 @@ void CGamedlg::UpdateMap() {
 		SRCCOPY
 	);
 
-	for (int i = 0; i <= 3; i++) {
-		for (int j = 0; j <= 3; j++) {
+	for (int i = 0; i < MAX_ROW; ++i) {
+		for (int j = 0; j < MAX_COL; ++j) {
 			int nInfo = m_GameControl.GetElement(i, j);
-			// 如果为空，不绘制元素
 			if (nInfo == BLANK) continue;
-
-			// 先绘制遮罩（SRCPAINT），再绘制元素图（SRCAND）
 			m_dcMem.BitBlt(nLeft + j * nElemW, nTop + i * nElemH, nElemW, nElemH, &m_dcMask, 0, nInfo * nElemH, SRCPAINT);
 			m_dcMem.BitBlt(nLeft + j * nElemW, nTop + i * nElemH, nElemW, nElemH, &m_dcElement, 0, nInfo * nElemH, SRCAND);
 		}
@@ -176,13 +230,15 @@ void CGamedlg::UpdateMap() {
 
 void CGamedlg::OnLButtonUp(UINT nFlags, CPoint point)
 {
-	// 判断是否在游戏区外
+	if (!m_bPlaying)
+		return;
+
 	if (point.x < m_ptGameTop.x || point.y < m_ptGameTop.y) {
 		return CDialogEx::OnLButtonUp(nFlags, point);
 	}
 	int nRow = (point.y - m_ptGameTop.y) / m_sizeElem.cy;
 	int nCol = (point.x - m_ptGameTop.x) / m_sizeElem.cx;
-	if (nRow > 3 || nCol > 3) {
+	if (nRow < 0 || nRow >= MAX_ROW || nCol < 0 || nCol >= MAX_COL) {
 		return CDialogEx::OnLButtonUp(nFlags, point);
 	}
 
@@ -248,6 +304,12 @@ void CGamedlg::OnLButtonUp(UINT nFlags, CPoint point)
 		// 重置为等待第一个点击
 		m_bFirstPoint = true;
 	}
+	if (m_GameControl.IsWin()) {
+		m_bPlaying = false;
+		KillTimer(m_nTimerID);
+		MessageBox(_T("恭喜你，获胜！"), _T("胜利"), MB_OK | MB_ICONINFORMATION);
+		GetDlgItem(IDC_BTN_START)->EnableWindow(TRUE);
+	}
 }
 
 void CGamedlg::DrawTipFrame(int nRow, int nCol) {
@@ -286,4 +348,38 @@ void CGamedlg::DrawTipLine(Vertex* vertexs, int nCount)
 	}
 
 	m_dcMem.SelectObject(pOldPen);
+}
+void CGamedlg::DrawTipFramePair(const Vertex& v1, const Vertex& v2) {
+	DrawTipFrame(v1.row, v1.col);
+	DrawTipFrame(v2.row, v2.col);
+}
+
+void CGamedlg::OnTimer(UINT_PTR nIDEvent)
+{
+	if (nIDEvent == m_nTimerID) {
+		if (m_bPlaying && !m_bPaused) {
+			--m_nTimeLeft;
+			// 更新显示（假设有 IDC_STATIC_TIME 静态文本）
+			CString str;
+			str.Format(_T("倒计时：%d 秒"), m_nTimeLeft);
+			SetDlgItemText(IDC_STATIC_TIME, str);
+
+			if (m_nTimeLeft <= 0) {
+				// 时间到：停止游戏并清理定时器
+				if (m_bTimerRunning) {
+					KillTimer(m_nTimerID);
+					m_bTimerRunning = false;
+				}
+				m_bPlaying = false;
+				MessageBox(_T("时间到，游戏失败！"), _T("失败"), MB_OK | MB_ICONINFORMATION);
+				GetDlgItem(IDC_BTN_START)->EnableWindow(TRUE);
+			}
+		}
+	}
+	CDialogEx::OnTimer(nIDEvent);
+}
+
+void CGamedlg::OnStnClickedStaticTime()
+{
+	// TODO: 在此添加控件通知处理程序代码
 }

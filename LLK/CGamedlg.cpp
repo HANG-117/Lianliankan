@@ -124,21 +124,6 @@ void CGamedlg::InitElement() {
 	m_dcMask.SelectObject(&m_bmpMask);
 }
 
-void CGamedlg::OnBnClickedButton3()
-{
-	// TODO: 在此添加控件通知处理程序代码
-
-}
-
-void CGamedlg::OnBnClickedButton4()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-void CGamedlg::OnBnClickedButton1()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
 
 void CGamedlg::OnClickedBtnStart()
 {

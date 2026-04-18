@@ -49,14 +49,10 @@ protected:
 public:
     virtual BOOL OnInitDialog();
     afx_msg void OnPaint();
-    afx_msg void OnBnClickedButton3();
-    afx_msg void OnBnClickedButton4();
-    afx_msg void OnBnClickedButton1();
     afx_msg void OnClickedBtnStart();
     afx_msg void OnBnClickedBtnPause();
     afx_msg void OnBnClickedBtnIdea();
     afx_msg void OnBnClickedBtnRestart();
-    afx_msg void OnBnClickedBtnReset();
     afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
     afx_msg void OnTimer(UINT_PTR nIDEvent);
     afx_msg void OnStnClickedStaticTime();

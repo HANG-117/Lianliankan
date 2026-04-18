@@ -83,6 +83,13 @@ BOOL CGamedlg::OnInitDialog()
 
 	InitBackground();
 	InitElement();
+	if (m_bRelaxMode) {
+		SetWindowText(_T("连连看 - 休闲模式"));
+		SetTimer(2, 5000, NULL);
+	}
+	else {
+		SetWindowText(_T("连连看 - 基本模式"));
+	}
 	return TRUE;  // return TRUE unless you set the focus to a control
 }
 
@@ -307,7 +314,14 @@ void CGamedlg::OnLButtonUp(UINT nFlags, CPoint point)
 	if (m_GameControl.IsWin()) {
 		m_bPlaying = false;
 		KillTimer(m_nTimerID);
-		SaveToRank(m_nTimeLeft);
+		if (m_bRelaxMode) {
+			KillTimer(2);
+		}
+
+		// === 修改：仅在普通模式下才保存成绩 ===
+		if (!m_bRelaxMode) {
+			SaveToRank(m_nTimeLeft);
+		}
 		MessageBox(_T("恭喜通关！成绩已记录。"), _T("游戏结束"), MB_OK | MB_ICONINFORMATION);
 		GetDlgItem(IDC_BTN_START)->EnableWindow(TRUE);
 	}
@@ -377,6 +391,9 @@ void CGamedlg::OnTimer(UINT_PTR nIDEvent)
 				GetDlgItem(IDC_BTN_START)->EnableWindow(TRUE);
 			}
 		}
+	}
+	else if (nIDEvent == 2 && !m_bPaused && m_bPlaying) {
+		OnBnClickedBtnRestart();
 	}
 	CDialogEx::OnTimer(nIDEvent);
 }

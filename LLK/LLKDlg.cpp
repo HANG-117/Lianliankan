@@ -283,13 +283,18 @@ void CLLKDlg::OnBnClickedBtnLevel()
 
 void CLLKDlg::OnBnClickedBtnRelax()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	this->ShowWindow(SW_HIDE);
+	CGamedlg dlg;
+	dlg.m_bRelaxMode = true;
+	dlg.DoModal();
+	this->ShowWindow(SW_SHOW);
 }
 
 void CLLKDlg::OnBnClickedBtnBasic()
 {
 	this->ShowWindow(SW_HIDE);
 	CGamedlg dlg;
+	dlg.m_bRelaxMode = false;
 	dlg.DoModal();
 	this->ShowWindow(SW_SHOW);
 }

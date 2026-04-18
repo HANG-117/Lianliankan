@@ -307,9 +307,11 @@ void CGamedlg::OnLButtonUp(UINT nFlags, CPoint point)
 	if (m_GameControl.IsWin()) {
 		m_bPlaying = false;
 		KillTimer(m_nTimerID);
-		MessageBox(_T("恭喜你，获胜！"), _T("胜利"), MB_OK | MB_ICONINFORMATION);
+		SaveToRank(m_nTimeLeft);
+		MessageBox(_T("恭喜通关！成绩已记录。"), _T("游戏结束"), MB_OK | MB_ICONINFORMATION);
 		GetDlgItem(IDC_BTN_START)->EnableWindow(TRUE);
 	}
+	CDialogEx::OnLButtonUp(nFlags, point);
 }
 
 void CGamedlg::DrawTipFrame(int nRow, int nCol) {

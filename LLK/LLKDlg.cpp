@@ -8,6 +8,7 @@
 #include "LLKDlg.h"
 #include "afxdialogex.h"
 #include "CGamedlg.h"
+#include "global.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -203,7 +204,21 @@ void CLLKDlg::OnBnClickedBtnHelp()
 
 void CLLKDlg::OnBnClickedBtnRank()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	std::vector<int> scores = LoadRank();
+
+	if (scores.empty()) {
+		MessageBox(_T("目前还没有排行记录，快去挑战吧！"), _T("排行榜"), MB_OK | MB_ICONINFORMATION);
+		return;
+	}
+
+	CString strDisplay = _T("--- 连连看最高纪录 (剩余时间) ---\n\n");
+	for (size_t i = 0; i < scores.size(); ++i) {
+		CString strLine;
+		strLine.Format(_T("第 %d 名:    %d 秒\n"), i + 1, scores[i]);
+		strDisplay += strLine;
+	}
+
+	MessageBox(strDisplay, _T("英雄榜"), MB_OK | MB_ICONINFORMATION);
 }
 
 void CLLKDlg::OnBnClickedBtnSetting()

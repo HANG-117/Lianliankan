@@ -141,7 +141,7 @@ void CGamedlg::OnClickedBtnStart()
 
 	m_bPlaying = true;
 	m_bPaused = false;
-	m_nTimeLeft = 600; // 开始时重置时间（按需调整）
+	m_nTimeLeft = 300; // 开始时重置时间（按需调整）
 	// 如果定时器尚未启动，启动它
 	if (!m_bTimerRunning) {
 		SetTimer(m_nTimerID, 1000, NULL); // 1 秒间隔

@@ -13,6 +13,9 @@
 #define IDB_MAIN_BG                     132
 #define IDD_DIALOG1                     133
 #define IDD_GAME_DIALOG                 133
+#define IDB_BITMAP4                     140
+#define IDB_BITMAP5                     141
+#define IDB_BT_HELP                     141
 #define IDC_BTN_RESTART                 1001
 #define IDC_STATIC_TIME                 1002
 #define IDC_BTN_LEVEL                   1003
@@ -30,7 +33,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        140
+#define _APS_NEXT_RESOURCE_VALUE        142
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1003
 #define _APS_NEXT_SYMED_VALUE           101

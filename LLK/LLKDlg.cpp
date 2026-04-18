@@ -9,6 +9,7 @@
 #include "afxdialogex.h"
 #include "CGamedlg.h"
 #include "global.h"
+#include <atlimage.h>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -195,13 +196,62 @@ void CLLKDlg::InitBackground()
 
 	m_dcMem.SelectObject(&bmpMain);
 }
-
-
 void CLLKDlg::OnBnClickedBtnHelp()
 {
-	// TODO: 在此添加控件通知处理程序代码
-}
+	// 在函数内部定义一个局部类，复用关于对话框
+	class CHelpDlg : public CDialogEx
+	{
+	public:
+		CHelpDlg() : CDialogEx(IDD_ABOUTBOX) {}
 
+	protected:
+		virtual BOOL OnInitDialog() override {
+			CDialogEx::OnInitDialog();
+			SetWindowText(_T("游戏帮助"));
+
+			// 隐藏原对话框上的所有控件
+			CWnd* pChild = GetWindow(GW_CHILD);
+			while (pChild) {
+				pChild->ShowWindow(SW_HIDE);
+				pChild = pChild->GetNextWindow();
+			}
+
+			// 【关键修改】：直接从资源中加载图片，使用你截图中的资源 ID
+			m_image.LoadFromResource(AfxGetInstanceHandle(), IDB_BT_HELP);
+
+			if (!m_image.IsNull()) {
+				// 根据图片大小调整窗口
+				CRect rect(0, 0, m_image.GetWidth(), m_image.GetHeight());
+				CalcWindowRect(&rect);
+				SetWindowPos(NULL, 0, 0, rect.Width(), rect.Height(), SWP_NOMOVE | SWP_NOZORDER);
+				CenterWindow();
+			}
+			else {
+				MessageBox(_T("未能从资源中加载图片，请确认 IDB_BT_HELP 是否正确添加到 resource.h 中！"), _T("错误"), MB_OK | MB_ICONERROR);
+			}
+			return TRUE;
+		}
+
+		// 拦截绘制消息，把图片画出来
+		virtual LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam) override {
+			if (message == WM_PAINT) {
+				CPaintDC dc(this);
+				if (!m_image.IsNull()) {
+					m_image.Draw(dc.GetSafeHdc(), 0, 0);
+				}
+				return 0; // 表示消息已处理
+			}
+			return CDialogEx::WindowProc(message, wParam, lParam);
+		}
+
+	private:
+		CImage m_image;
+	};
+
+	// 弹出帮助对话框
+	CHelpDlg helpDlg;
+	helpDlg.DoModal();
+}
 void CLLKDlg::OnBnClickedBtnRank()
 {
 	std::vector<int> scores = LoadRank();

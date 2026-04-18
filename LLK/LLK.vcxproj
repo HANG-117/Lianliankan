@@ -219,6 +219,7 @@
     <Image Include="res\bitmap4.bmp" />
     <Image Include="res\LLK.ico" />
     <Image Include="res\llk_main.bmp" />
+    <Image Include="theme\picture\basic_help.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

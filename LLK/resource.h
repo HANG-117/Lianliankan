@@ -6,6 +6,7 @@
 #define IDD_ABOUTBOX                    100
 #define IDS_ABOUTBOX                    101
 #define IDD_LLK_DIALOG                  102
+#define SS_REALSIZECONTROL              0x00000080
 #define IDR_MAINFRAME                   128
 #define IDB_BITMAP1                     129
 #define IDB_BITMAP2                     130
@@ -13,7 +14,6 @@
 #define IDB_MAIN_BG                     132
 #define IDD_DIALOG1                     133
 #define IDD_GAME_DIALOG                 133
-#define IDB_BITMAP4                     140
 #define IDB_BITMAP5                     141
 #define IDB_BT_HELP                     141
 #define IDC_BTN_RESTART                 1001
